@@ -1,0 +1,14 @@
+; ---------------------------------------------------------------------------
+; Sprite mappings - SLZ	platforms
+; ---------------------------------------------------------------------------
+	include	"Mappings/_MapMacrosS3.asm"
+
+Map_Plat_SLZ_internal:	mappingsTable
+	mappingsTableEntry.w	@platform
+
+@platform:	spriteHeader
+	spritePiece	-$20, -8, 4, 4, $21, 0, 0, 0, 0
+	spritePiece	0, -8, 4, 4, $21, 0, 0, 0, 0
+@platform_End
+
+	even
