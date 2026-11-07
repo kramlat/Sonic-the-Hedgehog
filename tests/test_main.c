@@ -11,6 +11,8 @@ void RegisterRenderFlagsTests(void);
 void RegisterVdp8bppTests(void);
 void RegisterTileBankTests(void);
 void RegisterVDPWindowTests(void);
+void RegisterVDPGpuTests(void);
+void RegisterEditorTerrainTests(void);
 void RegisterMathTests(void);
 void RegisterPLCTests(void);
 void RegisterLevelDrawTests(void);
@@ -64,6 +66,8 @@ int main(void) {
     RegisterVdp8bppTests();
     RegisterTileBankTests();
     RegisterVDPWindowTests();
+    RegisterVDPGpuTests();
+    RegisterEditorTerrainTests();
     printf("Math tests:\n");
     RegisterMathTests();
     printf("PLC tests:\n");

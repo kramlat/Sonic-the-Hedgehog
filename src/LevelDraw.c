@@ -1,3 +1,4 @@
+#include "EditorLive.h"
 #include "LevelDraw.h"
 #include "LevelDrawCore.h" // the block drawing: the engine's
 
@@ -458,6 +459,10 @@ void AniArt_Ending(void) {
 void AnimateLevelGfx(void) {
     // Don't run if game is paused
     if (pause_state)
+        return;
+
+    // The level editor loaded another zone's tiles: this level's animations would write over them
+    if (Editor_AnimationOff())
         return;
 
     // Animate giant ring
