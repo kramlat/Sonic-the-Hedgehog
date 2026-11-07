@@ -25,6 +25,9 @@ void Obj_DrownCount(Sst *self);
 Sst *DrownCount_Master(void);
 void DrownCount_StartMaster(void);
 
+// Takes Sonic out of his drowning (free movement mode's exit): the sinking and the lock end, air 30 with the level's music, scrolling and time go on. True when he was drowning.
+bool DrownCount_CancelDrowning(void);
+
 // Replenishes air to 30s and (if the drowning countdown/music has kicked
 // in) restores the appropriate music -- called on water exit, air bubble
 // pickup, and level start/respawn. Matches s1disasm's sub ResumeMusic.asm.

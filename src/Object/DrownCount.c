@@ -312,3 +312,23 @@ void Obj_DrownCount(Sst *self) {
         }
     }
 }
+
+// Free movement mode (the debug cheat's object placement) can be called during Sonic's drowning too, and gives him his breath back on its exit: the sinking stops, his control comes back, his air is 30 again with the
+// level's music, and the scrolling and the time go on. True when he was drowning.
+bool DrownCount_CancelDrowning(void) {
+    Sst *master = DrownCount_Master();
+    if (master == NULL)
+        return false;
+    Own_DrownCount *own = (Own_DrownCount *)master->own.u8;
+    if (!own->restart_time)
+        return false;
+    own->restart_time = 0;
+    own->num_time = 0;
+    own->extra_bub_flag = 0;
+    own->extra_bubbles = 0;
+    lock_multi = 0;
+    nobgscroll = false;
+    time_count = true;
+    ResumeMusic();
+    return true;
+}

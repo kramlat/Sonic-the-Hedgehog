@@ -809,8 +809,8 @@ signed int HurtSonicFrom(Sst *self, int16_t src_x, bool spikes)
                 rings->x_pos.f.u = self->x_pos.f.u;
                 rings->y_pos.f.u = self->y_pos.f.u;
             }
-        } else if (!debug_mode) {
-            // Die
+        } else {
+            // Die (the debug cheat does not save him: B in the hurt and dead states enters object placement mode instead, Sonic_EnterDebugMode)
             return KillSonicFrom(self, spikes);
         }
     }
@@ -1836,6 +1836,7 @@ static void DebugMode_ShowItem(Sst *self) {
 // disassembly's DebugMode: 1 (set by that B-press check) means "just
 // entered, run one-time setup", 2 means "already active".
 void Sonic_DebugMode(Sst *self) {
+    Scratch_Sonic *scratch = (Scratch_Sonic *)self->own.u8;
     if (debug_use == 1) {
         // One-time setup: temporarily unlock the level's Y boundaries (so
         // debug mode can fly anywhere), pick a valid starting item, and
@@ -1940,6 +1941,18 @@ void Sonic_DebugMode(Sst *self) {
         // Exit back to normal Sonic.
         debug_use = 0;
 
+        // (free movement mode can be called during the hurt, dead and drowning states, and its exit resets them: he is himself again)
+        if (gamemode != GameMode_Special) {
+            const bool drowned = DrownCount_CancelDrowning();
+            if (self->routine != 2 || drowned) {
+                self->routine = 2;
+                self->x_vel = self->y_vel = self->ground_vel = 0;
+                self->status &= (uint8_t)~(SST_PSTATUS_IN_BALL | SST_PSTATUS_PUSHING);
+                scratch->flash_time = 0;
+                scratch->jumping = false;
+            }
+        }
+
         if (gamemode == GameMode_Special) {
             // Resume the stage as a rolling ball at the normal spin speed.
             ss_angle.f.u = 0;
@@ -1961,6 +1974,15 @@ void Sonic_DebugMode(Sst *self) {
     }
 
     Sst_Draw(self);
+}
+
+// The hook that enters object placement mode: B while the debug cheat is on. Obj_Sonic runs it in his normal state and in the hurt and dead ones (HurtSonic and KillSonic put him there), so the mode can be reached after a hit or a death
+static bool Sonic_EnterDebugMode(void) {
+    if (!debug_cheat || !(jpad1_press1 & JPAD_B))
+        return false;
+    debug_use = true;
+    lock_ctrl = false;
+    return true;
 }
 
 // Sonic object
@@ -2049,11 +2071,8 @@ void Obj_Sonic(Sst *self) {
         // Fallthrough
     case 2: // Regular movement
         // Enter debug mode
-        if (debug_cheat && (jpad1_press1 & JPAD_B)) {
-            debug_use = true;
-            lock_ctrl = false;
+        if (Sonic_EnterDebugMode())
             break;
-        }
 
         // Copy player controls if not locked
         if (!lock_ctrl) {
@@ -2139,6 +2158,8 @@ void Obj_Sonic(Sst *self) {
         Sonic_LoadGfx(self);
         break;
     case 4: // Hurt
+        if (Sonic_EnterDebugMode())
+            break;
         // Fall
         Sst_MoveSprite2(self);
         self->y_vel += 0x30;
@@ -2160,6 +2181,8 @@ void Obj_Sonic(Sst *self) {
         Sst_Draw(self);
         break;
     case 6: // Dead
+        if (Sonic_EnterDebugMode())
+            break;
         // Check for respawning and fall
         GameOver(self);
         Sst_MoveSprite(self);
