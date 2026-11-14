@@ -447,8 +447,8 @@ GM_Level_Branch:;
         ExecuteObjects();
         HUD_Draw();
         // Restart level gamemode if restart flag set
-        if (restart)
-            goto GM_Level_Branch;
+        if (restart && !(game_info.demo_death_to_sega && gamemode == GameMode_Demo))
+            goto GM_Level_Branch; // (a death in a demo ends it, below, in such a game)
 
         // Setup video and load PLCs
         if (debug_use || player->routine < 6)
