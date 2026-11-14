@@ -10,6 +10,7 @@
 // read the real values instead of keeping its own copy.
 extern const int8_t ring_pos[16][2];
 
+extern void (*ring_collected_hook)(void); // called by Ring_Collect (NULL: nothing)
 void Ring_Collect(void); // adds one ring: counter, sound, extra lives at 100 and 200
 
 typedef struct {

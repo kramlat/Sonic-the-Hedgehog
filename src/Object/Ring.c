@@ -87,9 +87,13 @@ static void ExtraLife(void) {
 }
 
 // Adds a ring and handles the sound and 100/200-ring extra lives (also used by the special stage).
+void (*ring_collected_hook)(void); // (a game that counts the rings otherwise too: Sonic 2's versus)
+
 void Ring_Collect(void) {
     // Increment ring count
     rings++;
+    if (ring_collected_hook != NULL)
+        ring_collected_hook();
     ring_count |= 1;
 
     // The ring sound, or the extra-life jingle instead when this ring earns a life (100 and 200 rings).
