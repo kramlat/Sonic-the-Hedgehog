@@ -16,6 +16,7 @@
 // A split screen (Sonic 2's) puts the lives counter in the lower left of each view, where the original's picture has it, not in the corner of a wide picture
 bool hud_lives_lower_left;
 bool hud_player_two;
+bool hud_hold_back;
 
 // Whether the screen has one (a level, the ending): GM_Level and GM_Ending say so
 bool hud_visible;
@@ -31,7 +32,7 @@ static Sst hud_sprite, hud_lives_sprite, hud_lives_tails_icon, hud_lives_tails_t
 static bool HUD_IsWide(void) { return SCREEN_WIDTH > 320; }
 
 void HUD_Draw(void) {
-    if (!hud_visible || (editor_present && !editor_playtest))
+    if (!hud_visible || hud_hold_back || (editor_present && !editor_playtest))
         return; // (the level editor draws its own)
 
     Sst *self = &hud_sprite;

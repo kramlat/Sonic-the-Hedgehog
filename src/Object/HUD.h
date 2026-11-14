@@ -6,6 +6,7 @@
 
 extern bool hud_lives_lower_left; // the lives counter of a wide picture goes in the lower left (a split screen)
 
+extern bool hud_hold_back; // the title card has the picture covered: HUD_Draw draws nothing
 extern bool hud_player_two; // the picture is the second player's (online): the lives counter has Miles' icon and name
 
 extern bool hud_visible; // a level or the ending is on: HUD_Draw draws the HUD
