@@ -15,15 +15,18 @@
 
 // A split screen (Sonic 2's) puts the lives counter in the lower left of each view, where the original's picture has it, not in the corner of a wide picture
 bool hud_lives_lower_left;
+bool hud_player_two;
 
 // Whether the screen has one (a level, the ending): GM_Level and GM_Ending say so
 bool hud_visible;
 
 static Sst hud_sprite, hud_lives_sprite, hud_lives_tails_icon, hud_lives_tails_text;
 
-// (Sonic 2's second view: the lives counter has Tails' icon, at this tile; its name stays SONIC)
+// (Sonic 2's second view: the lives counter has Tails' icon, at this tile, and his name MILES)
 #define HUD_TAILS_ICON_TILE 0x7E0
 #define HUD_LIVES_ICON_OFFSET 0x10A // (the icon's tile in the HUD's own art)
+#define HUD_MILES_TEXT_TILE 0x7E4   // (the name MILES, after the icon's four tiles)
+#define HUD_LIVES_TEXT_OFFSET 0x10E // (the name's tile in the HUD's own art)
 
 static bool HUD_IsWide(void) { return SCREEN_WIDTH > 320; }
 
@@ -48,7 +51,7 @@ void HUD_Draw(void) {
         if (level_time.min == 9)
             frame += 2; // Flash TIME
     }
-    const bool lives_apart = HUD_IsWide() || hud_lives_lower_left; // (a split screen draws its lives counters as sprites of their own)
+    const bool lives_apart = HUD_IsWide() || hud_lives_lower_left || hud_player_two; // (a split screen draws its lives counters as sprites of their own)
     self->mapping_frame = frame + (lives_apart ? HUD_WIDE_FRAMES : 0);
     Sst_Draw(self);
 
@@ -64,8 +67,16 @@ void HUD_Draw(void) {
     if (hud_lives_lower_left) {
         lives->x_pos.f.u = 0x90;
         lives->y_pos.f.u = 0x148 + SCREEN_TALLADD2; // (the lives-only frame has its pieces at 0, the full frames at $40)
-        lives->hidden_in_view = 2; // (the second view has Tails')
-        // the second view's: the icon of Tails, and the name as it is (SONIC)
+        lives->hidden_in_view = 2; // (the second view has Miles')
+    } else if (hud_player_two && !HUD_IsWide()) {
+        lives->x_pos.f.u = 0x90;
+        lives->y_pos.f.u = 0x148 + SCREEN_TALLADD2;
+    } else {
+        lives->x_pos.f.u = (int16_t)(0x80 + SCREEN_WIDTH - 0x40);
+        lives->y_pos.f.u = 0x88;
+    }
+    if (hud_lives_lower_left || hud_player_two) {
+        // Miles' counter (the second view of a split screen, or the picture of the second player online): his icon and his name
         Sst *const tails[2] = { &hud_lives_tails_icon, &hud_lives_tails_text };
         for (int i = 0; i < 2; i++) {
             tails[i]->mappings = Mappings_HUD;
@@ -73,14 +84,13 @@ void HUD_Draw(void) {
             tails[i]->priority = 0 * 0x80;
             tails[i]->x_pos.f.u = lives->x_pos.f.u;
             tails[i]->y_pos.f.u = lives->y_pos.f.u;
-            tails[i]->hidden_in_view = 1;
-            tails[i]->art_tile = TILE_MAP(0, 0, 0, 0, i == 0 ? HUD_TAILS_ICON_TILE - HUD_LIVES_ICON_OFFSET : ArtTile_HUD);
+            tails[i]->hidden_in_view = hud_lives_lower_left ? 1 : 0;
+            tails[i]->art_tile = TILE_MAP(0, 0, 0, 0, i == 0 ? HUD_TAILS_ICON_TILE - HUD_LIVES_ICON_OFFSET : HUD_MILES_TEXT_TILE - HUD_LIVES_TEXT_OFFSET);
             tails[i]->mapping_frame = (uint8_t)(2 * HUD_WIDE_FRAMES + 1 + i);
             Sst_Draw(tails[i]);
         }
-    } else {
-        lives->x_pos.f.u = (int16_t)(0x80 + SCREEN_WIDTH - 0x40);
-        lives->y_pos.f.u = 0x88;
+        if (!hud_lives_lower_left)
+            return; // (online: Miles' counter is the only one)
     }
     Sst_Draw(lives);
 }
