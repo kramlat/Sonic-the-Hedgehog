@@ -161,6 +161,7 @@ static void Rings_TheViewsHeightAndTheLevelsWrapDecideWhatIsDrawn(void) {
     cam_y = 0x49;
     CHECK_EQ(Render(), 2); // 9 above: not drawn (the two lower ones are)
 
+    level_sprites_wrap_y = true; // (a looping level: an earlier test may have loaded one that does not)
     level_screen_y_wrap = 0xFF; // a level 256 pixels high wraps: its rings are also seen from a view that starts a level's height below them
     cam_y = 0x140;
     CHECK_EQ(Render(), 5);

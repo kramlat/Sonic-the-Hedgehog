@@ -128,10 +128,20 @@ static void Sprites_YWrapIsTheLevelsHeight(void) {
     CHECK_EQ(sprite_count, 0);
     CHECK(!(o.render_flags & SST_RENDER_ON_SCREEN));
 
+    level_sprites_wrap_y = true; // (a level that loops vertically)
     level_screen_y_wrap = 0x7FF;
     Build();
     CHECK_EQ(sprite_count, 1);
     CHECK(o.render_flags & SST_RENDER_ON_SCREEN);
+
+    // A level that does not loop (Sonic 1 and 2 outside their looping levels) does not wrap its objects: one that has fallen a level's height below (GHZ1's out-of-bounds Motobug) is not drawn, so it is not
+    // on screen for Sonic to touch either, as in the original
+    level_sprites_wrap_y = false;
+    o.render_flags &= (uint8_t)~SST_RENDER_ON_SCREEN;
+    Build();
+    CHECK_EQ(sprite_count, 0);
+    CHECK(!(o.render_flags & SST_RENDER_ON_SCREEN));
+    level_sprites_wrap_y = true;
 }
 
 static void Sprites_SplitScreenBuildsTwoTables(void) {

@@ -233,6 +233,9 @@ void LevelSizeLoad(void) {
     limit_btm2 = *sizes;
     limit_btm1 = *sizes++;
     limit_left3 = limit_left2 + 0x240;
+    // Objects are drawn wrapped round the level only where it loops vertically (top limit -$100: Labyrinth act 3, Scrap Brain act 2). Elsewhere, as in the original (BuildSprites does not wrap), an object far
+    // below the level is not drawn: GHZ1's Motobug at (3152, 844) has no floor and falls for ever, and wrapped it showed up 2,048 pixels higher on the slope near (3100, 696), drawn but not touchable.
+    level_sprites_wrap_y = (int16_t)limit_top1 < 0;
     look_shift = *sizes++;
 
     // Load player start

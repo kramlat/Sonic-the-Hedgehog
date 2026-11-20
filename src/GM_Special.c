@@ -8,6 +8,7 @@
 #include "GM_Level.h"
 #include "SpecialStage.h"
 #include "Level.h"
+#include "ScrollEngine.h"
 #include "LevelScroll.h"
 #include "LevelDraw.h"
 #include "LevelCollision.h"
@@ -55,6 +56,7 @@ static void SS_RunStage(void) {
 	limit_right1 = 0;
 	limit_top1 = 0;
 	limit_btm1 = 0;
+	level_sprites_wrap_y = true; // (the special stage draws as it always did: see Level.c's LevelSizeLoad)
 	limit_left2 = 0;
 	limit_right2 = 0;
 	limit_top2 = 0;
