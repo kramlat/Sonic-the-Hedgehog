@@ -178,6 +178,33 @@ static void SstObjects_SonicWalkingIntoABadnikOnTheTableIsHurt(void) {
     CHECK_EQ(score, 0);
 }
 
+// A Motobug that Sonic walks into hurts him (its collision is the enemy kind $0C; it is only an enemy to a character who is rolling or invincible)
+static void SstObjects_SonicWalkingIntoAMotobugIsHurt(void) {
+    Touch_Setup();
+    Sst *bug = Sst_Spawn(ObjId_Motobug, 0x100, 0x300);
+    Sst_Process(false);
+    bug->x_pos.f.u = 0x100;
+    bug->y_pos.f.u = 0x300;
+    bug->collision_flags = 0x0C;
+    bug->render_flags |= SST_RENDER_ON_SCREEN;
+    player->anim = SonAnimId_Walk;
+    rings = 5;
+    shield = 0;
+    ReactToItem(player);
+    CHECK(bug->code == sst_object_codes[ObjId_Motobug]);
+    CHECK_EQ(player->routine, 4); // (hurt)
+    Touch_Setup();
+    bug = Sst_Spawn(ObjId_Motobug, 0x100, 0x300);
+    Sst_Process(false);
+    bug->x_pos.f.u = 0x100;
+    bug->y_pos.f.u = 0x300;
+    bug->collision_flags = 0x0C;
+    bug->render_flags |= SST_RENDER_ON_SCREEN;
+    player->anim = SonAnimId_Roll;
+    ReactToItem(player);
+    CHECK(bug->code == sst_object_codes[ObjId_Explosion]); // (a rolling Sonic destroys it)
+}
+
 static void SstObjects_SonicTouchingARingOfTheLayoutCollectsIt(void) {
     Touch_Setup();
     static const uint8_t layout[] = { 0x01, 0x00, 0x03, 0x00,   0xFF, 0xFF, 0x00, 0x00 }; // one ring, where Sonic is
@@ -408,6 +435,7 @@ void RegisterSstObjectsTests(void) {
     RUN_TEST(SstObjects_AHelixMakesItsSpikesAndTakesThemWhenItLeaves);
     RUN_TEST(SstObjects_SonicRollingIntoABadnikOnTheTableDestroysItAndScores);
     RUN_TEST(SstObjects_SonicWalkingIntoABadnikOnTheTableIsHurt);
+    RUN_TEST(SstObjects_SonicWalkingIntoAMotobugIsHurt);
     RUN_TEST(SstObjects_SonicTouchingARingOfTheLayoutCollectsIt);
     RUN_TEST(SstObjects_AChopperJumpsInItsPlaceAndTurnsBackAtTheWater);
     RUN_TEST(SstObjects_JawsTurnAfterTheirDelay);
