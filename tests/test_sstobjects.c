@@ -205,6 +205,42 @@ static void SstObjects_SonicWalkingIntoAMotobugIsHurt(void) {
     CHECK(bug->code == sst_object_codes[ObjId_Explosion]); // (a rolling Sonic destroys it)
 }
 
+// A collapsing ledge (or floor) lets go of Sonic when it breaks: each piece keeps its delay where FragmentatePlatform puts it, and the piece he stands on releases him when its delay runs out
+static void SstObjects_ACollapsingLedgeLetsGoOfSonicWhenItBreaks(void) {
+    static const ObjectId ids[] = { ObjId_CollapseLedge, ObjId_CollapseFloor };
+    for (int k = 0; k < 2; k++) {
+        bool stood = false, released = false;
+        sst_load_everything_in_range = true; // (the test is far from the loader's camera)
+        for (int drop = 0; drop < 0x60 && !stood; drop += 4) { // (Sonic lands from a little above: the height his feet reach the top at depends on the object)
+            Touch_Setup();
+            Sst_Reset(); // (the ledges of the earlier heights are gone)
+            scrpos_x.f.u = 0x200;
+            scrpos_y.f.u = 0x400;
+            player->code = NULL; // (the test moves him)
+            player->y_radius = 19;
+            Sst_Spawn(ids[k], 0x300, 0x4C0);
+            Sst_Process(false); // (sets it up)
+            player->x_pos.f.u = 0x300;
+            player->y_pos.f.u = (int16_t)(0x4C0 - 0x60 + drop);
+            player->status &= (uint8_t)~SST_PSTATUS_IN_AIR;
+            for (int frame = 0; frame < 200 && !released; frame++) {
+                for (int i = SST_FIRST_DYNAMIC; i < SST_COUNT; i++)
+                    if (sst[i].code != NULL)
+                        sst[i].code(&sst[i]);
+                if (player->status & SST_PSTATUS_OBJECT_STAND)
+                    stood = true;
+                else if (stood)
+                    released = true;
+                else if (frame == 0)
+                    break; // (not caught at this height: try another)
+            }
+        }
+        CHECK(stood);
+        CHECK(released); // (it broke up and he is free to fall)
+        sst_load_everything_in_range = false;
+    }
+}
+
 static void SstObjects_SonicTouchingARingOfTheLayoutCollectsIt(void) {
     Touch_Setup();
     static const uint8_t layout[] = { 0x01, 0x00, 0x03, 0x00,   0xFF, 0xFF, 0x00, 0x00 }; // one ring, where Sonic is
@@ -436,6 +472,7 @@ void RegisterSstObjectsTests(void) {
     RUN_TEST(SstObjects_SonicRollingIntoABadnikOnTheTableDestroysItAndScores);
     RUN_TEST(SstObjects_SonicWalkingIntoABadnikOnTheTableIsHurt);
     RUN_TEST(SstObjects_SonicWalkingIntoAMotobugIsHurt);
+    RUN_TEST(SstObjects_ACollapsingLedgeLetsGoOfSonicWhenItBreaks);
     RUN_TEST(SstObjects_SonicTouchingARingOfTheLayoutCollectsIt);
     RUN_TEST(SstObjects_AChopperJumpsInItsPlaceAndTurnsBackAtTheWater);
     RUN_TEST(SstObjects_JawsTurnAfterTheirDelay);

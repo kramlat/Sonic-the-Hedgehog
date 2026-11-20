@@ -61,7 +61,7 @@ void Obj_CollapseFloor(Sst *self) {
         // SLZ-only (subtype's own top bit set): mirror the collapse
         // pattern to match which side of the platform Sonic is currently
         // standing on.
-        if (self->own.s8[0] < 0 && ((player->status & SST_PSTATUS_OBJECT_STAND) != 0))
+        if ((int8_t)self->subtype < 0 && ((player->status & SST_PSTATUS_OBJECT_STAND) != 0))
             SST_RENDER_SET(self, SST_RENDER_X_FLIP, (player->x_pos.f.u < self->x_pos.f.u));
         SstOnScreenTest(self);
         break;
