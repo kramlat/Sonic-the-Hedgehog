@@ -18,10 +18,13 @@ bool hud_lives_lower_left;
 bool hud_player_two;
 bool hud_hold_back;
 
+const tilebank_t *hud_second_bank;
+bool hud_second_rings_zero, hud_second_minutes_nine;
+
 // Whether the screen has one (a level, the ending): GM_Level and GM_Ending say so
 bool hud_visible;
 
-static Sst hud_sprite, hud_lives_sprite, hud_lives_tails_icon, hud_lives_tails_text;
+static Sst hud_sprite, hud_second_sprite, hud_lives_sprite, hud_lives_tails_icon, hud_lives_tails_text;
 
 // (Sonic 2's second view: the lives counter has Tails' icon, at this tile, and his name MILES)
 #define HUD_TAILS_ICON_TILE 0x7E0
@@ -54,7 +57,24 @@ void HUD_Draw(void) {
     }
     const bool lives_apart = HUD_IsWide() || hud_lives_lower_left || hud_player_two; // (a split screen draws its lives counters as sprites of their own)
     self->mapping_frame = frame + (lives_apart ? HUD_WIDE_FRAMES : 0);
+    self->bank = NULL;
+    self->hidden_in_view = (hud_second_bank != NULL && hud_lives_lower_left) ? 2 : 0; // (a split screen with numbers for the second view: this one is the first view's)
     Sst_Draw(self);
+    if (self->hidden_in_view) { // the second view's: the same pieces, from the bank that has his digits, with his RINGS and TIME flashing
+        Sst *second = &hud_second_sprite;
+        *second = *self;
+        second->bank = hud_second_bank;
+        second->hidden_in_view = 1;
+        uint8_t second_frame = 0;
+        if (!(frame_count & 8)) {
+            if (hud_second_rings_zero)
+                second_frame += 1;
+            if (hud_second_minutes_nine)
+                second_frame += 2;
+        }
+        second->mapping_frame = second_frame + HUD_WIDE_FRAMES;
+        Sst_Draw(second);
+    }
 
     if (!lives_apart)
         return;
