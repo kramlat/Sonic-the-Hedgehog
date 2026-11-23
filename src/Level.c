@@ -210,7 +210,7 @@ void LoadLevelLayout(void) {
     // The layout file is the Sonic 3 & Knuckles format (LevelLayout.h: a header with the level's size, then the rows), Kosinski compressed; it fills level_layout
     // (the fixed buffer, zero where the file has no chunk) and level_layout_size
     LevelLayout_LoadKosinski(level_layouts[LEVEL_ZONE(level_id)][LEVEL_ACT(level_id)].layout);
-    ScrollEngine_ResetLevelMasks(); // (every level wraps at the engine's sizes so far: a layout holds what is in the level, not where it wraps; see ScrollEngine.h)
+    // (the layout load sets the wrap masks itself: by the layout's height, 32 rows at least, 16 for a level that loops vertically)
     LevelScroll_BackgroundReset(); // (the engine's band layers draw the whole background again)
 }
 
@@ -232,6 +232,7 @@ void LevelSizeLoad(void) {
     limit_top1 = *sizes++;
     limit_btm2 = *sizes;
     limit_btm1 = *sizes++;
+    level_layout_loops = ScrollEngine_LevelLoops((int16_t)limit_top2); // (a level whose top limit is $FF00 wraps vertically, round 16 rows: the layout's masks, LevelLayout_Load)
     limit_left3 = limit_left2 + 0x240;
     // Objects are drawn wrapped round the level only where it loops vertically (top limit -$100: Labyrinth act 3, Scrap Brain act 2). Elsewhere, as in the original (BuildSprites does not wrap), an object far
     // below the level is not drawn: GHZ1's Motobug at (3152, 844) has no floor and falls for ever, and wrapped it showed up 2,048 pixels higher on the slope near (3100, 696), drawn but not touchable.
