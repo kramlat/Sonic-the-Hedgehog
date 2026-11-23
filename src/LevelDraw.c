@@ -494,3 +494,35 @@ void AnimateLevelGfx(void) {
         break;
     }
 }
+
+// The level editor's list of the tiles that this level's animations write over (Game_EditorAnimatedTiles), from the routines above: the tile each writes from and how many it writes
+int Game_EditorAnimatedTiles(int *first, int *count, const char **label, int max) {
+    typedef struct { int tile, tiles; const char *name; } Anim;
+    Anim list[8];
+    int n = 0;
+    switch (LEVEL_ZONE(level_id)) {
+    case ZoneId_GHZ:
+        list[n++] = (Anim){ ArtTile_GHZ_Waterfall, 8, "waterfall" };
+        list[n++] = (Anim){ ArtTile_GHZ_Big_Flower_1, 16, "big flower" };
+        list[n++] = (Anim){ ArtTile_GHZ_Small_Flower, 12, "small flower" };
+        break;
+    case ZoneId_MZ:
+        list[n++] = (Anim){ ArtTile_MZ_Animated_Magma, 16, "magma" };
+        list[n++] = (Anim){ ArtTile_MZ_Animated_Lava, 8, "lava" };
+        list[n++] = (Anim){ ArtTile_MZ_Torch, 6, "torch" };
+        break;
+    case ZoneId_SBZ:
+        list[n++] = (Anim){ ArtTile_SBZ_Smoke_Puff_1, 12, "smoke" };
+        list[n++] = (Anim){ ArtTile_SBZ_Smoke_Puff_2, 12, "smoke" };
+        break;
+    default:
+        break;
+    }
+    int out = 0;
+    for (int i = 0; i < n && out < max; i++, out++) {
+        first[out] = list[i].tile;
+        count[out] = list[i].tiles;
+        label[out] = list[i].name;
+    }
+    return out;
+}
