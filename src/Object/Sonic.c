@@ -7,6 +7,7 @@
 #include "SstLoad.h"
 #include "Constants.h"
 #include "DebugLog.h"
+#include "EditorLive.h"
 
 #include "Game.h"
 #include "GM_Level.h"
@@ -1850,7 +1851,7 @@ void Sonic_DebugMode(Sst *self) {
             limit_top_db = limit_top2;
             limit_btm_db = limit_btm1;
             limit_top2 = 0;
-            limit_btm1 = 0x800 - 224;
+            limit_btm1 = (uint16_t)(Editor_LevelBottom() + 1 - 224); // (the level's own height: $800 unless the layout is taller)
         }
 
         self->render_flags = SST_RENDER_LEVEL; // self->pos tracks world/playfield space (see the free-movement code below), not raw screen coords -- BuildSprites needs this to convert it correctly
