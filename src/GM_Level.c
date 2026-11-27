@@ -256,6 +256,8 @@ GM_Level_Branch:;
 
     // Clear screen
     ClearScreen();
+    if (game_info.clear_vram_on_level)
+        VDP_ClearVRAM();
 
     // Initialize VDP state
     Viewport_UseOwnPlanes(&screen1p);
