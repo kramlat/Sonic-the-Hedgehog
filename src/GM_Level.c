@@ -248,6 +248,8 @@ GM_Level_Branch:;
         if (LEVEL_LOAD_BLOCK(level_id)->plc1 != 0)
             AddPLC(LEVEL_LOAD_BLOCK(level_id)->plc1);
         AddPLC(PlcId_Main2);
+        if (game_info.clear_vram_on_level)
+            AddPLC(PlcId_Main); // (the standard art the title loaded stays no more: the HUD, the rings, the points and the star post come with every level)
     }
 
     Level_ClearState();
