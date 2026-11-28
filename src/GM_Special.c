@@ -137,15 +137,15 @@ static void SS_RunStage(void) {
 	VDPDisableWaterSplit(); // also clears wtr_state -- special stages are entered straight from levels (incl. LZ)
 	restart = false;
 	
-	//Load special stage palette and layout
+	//Load special stage palette
 	PalLoad1(PalId_Special);
-	SS_Load();
 	
 	//Initialize special stage
 	scrpos_x.v = 0;
 	scrpos_y.v = 0;
 	
-	Sst_ResetAll();
+	Sst_ResetAll(); // (it clears the player too: the layout load below sets Sonic's start position after it)
+	SS_Load();
 	player->code = Obj_SpecialSonic;
 	PCycle_SS();
 	
